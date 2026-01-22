@@ -19,15 +19,18 @@ class RolePermissionSeeder extends Seeder
 
         // === PERMISSIONS ===
         $permissions = [
-            'view dashboard',
-            'create post',
-            'edit post',
-            'delete post',
-            'manage users',
+            ['name' => 'view dashboard', 'feature' => 'Dashboard'],
+            ['name' => 'create post', 'feature' => 'Posts'],
+            ['name' => 'edit post', 'feature' => 'Posts'],
+            ['name' => 'delete post', 'feature' => 'Posts'],
+            ['name' => 'manage users', 'feature' => 'Users'],
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate(
+                ['name' => $permission['name']],
+                ['feature' => $permission['feature']]
+            );
         }
 
         // === ROLES ===

@@ -24,14 +24,20 @@
                          <!-- Permissions -->
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                @foreach($permissions as $permission)
-                                    <div class="flex items-center">
-                                        <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" id="perm_{{ $permission->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <label for="perm_{{ $permission->id }}" class="ml-2 text-sm text-gray-600">{{ $permission->name }}</label>
+                            
+                            @foreach($permissions->groupBy('feature') as $feature => $featurePermissions)
+                                <div class="mb-4">
+                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 border-b">{{ $feature }}</h3>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                        @foreach($featurePermissions as $permission)
+                                            <div class="flex items-center">
+                                                <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" id="perm_{{ $permission->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <label for="perm_{{ $permission->id }}" class="ml-2 text-sm text-gray-600">{{ $permission->name }}</label>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                @endforeach
-                            </div>
+                                </div>
+                            @endforeach
                         </div>
 
                         <div class="flex justify-end gap-2">
