@@ -100,6 +100,356 @@ This application comes with the following built-in features:
 - UUID support for all models
 - Role and Permission table management
 
+## API Documentation
+
+This application provides a comprehensive REST API built with Laravel Sanctum for token-based authentication.
+
+### Base URL
+
+```
+/api/v1
+```
+
+### Authentication
+
+The API uses Laravel Sanctum for authentication. Include the token in the `Authorization` header:
+
+```
+Authorization: Bearer {token}
+```
+
+### Public Endpoints
+
+#### Register User
+
+```
+POST /api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password",
+  "password_confirmation": "password"
+}
+
+Response: 201 Created
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "user": { ... },
+    "token": "..."
+  }
+}
+```
+
+#### Login
+
+```
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password"
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": { ... },
+    "token": "..."
+  }
+}
+```
+
+### Protected Endpoints (Requires Authentication)
+
+#### Get Current User
+
+```
+GET /api/v1/auth/me
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": { user object with roles and permissions }
+}
+```
+
+#### Update Profile
+
+```
+PUT /api/v1/auth/profile
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com"
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": { ... }
+}
+```
+
+#### Logout
+
+```
+POST /api/v1/auth/logout
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "message": "Logout successful"
+}
+```
+
+### User Management (Admin Only)
+
+#### List Users
+
+```
+GET /api/v1/users
+Authorization: Bearer {token}
+
+Query Parameters:
+  - page: integer (default: 1)
+  - per_page: integer (default: 15)
+
+Response: 200 OK
+{
+  "success": true,
+  "data": {
+    "data": [ ... ],
+    "links": { ... },
+    "meta": { ... }
+  }
+}
+```
+
+#### Get User
+
+```
+GET /api/v1/users/{id}
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": { user object }
+}
+```
+
+#### Create User
+
+```
+POST /api/v1/users
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "New User",
+  "email": "newuser@example.com",
+  "password": "password",
+  "roles": ["user", "editor"]
+}
+
+Response: 201 Created
+{
+  "success": true,
+  "message": "User created successfully",
+  "data": { user object }
+}
+```
+
+#### Update User
+
+```
+PUT /api/v1/users/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "email": "updated@example.com",
+  "roles": ["admin"]
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": { user object }
+}
+```
+
+#### Delete User
+
+```
+DELETE /api/v1/users/{id}
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "message": "User deleted successfully"
+}
+```
+
+### Roles Management (Admin Only)
+
+#### List Roles
+
+```
+GET /api/v1/roles
+Authorization: Bearer {token}
+```
+
+#### Get Role
+
+```
+GET /api/v1/roles/{id}
+Authorization: Bearer {token}
+```
+
+#### Create Role
+
+```
+POST /api/v1/roles
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "moderator",
+  "permissions": ["view dashboard", "edit post"]
+}
+```
+
+#### Update Role
+
+```
+PUT /api/v1/roles/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "super_moderator"
+}
+```
+
+#### Assign Permissions to Role
+
+```
+POST /api/v1/roles/{id}/permissions
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "permissions": ["view dashboard", "create post", "edit post", "delete post"]
+}
+```
+
+#### Delete Role
+
+```
+DELETE /api/v1/roles/{id}
+Authorization: Bearer {token}
+```
+
+### Permissions Management (Admin Only)
+
+#### List Permissions
+
+```
+GET /api/v1/permissions
+Authorization: Bearer {token}
+```
+
+#### Get Permission
+
+```
+GET /api/v1/permissions/{id}
+Authorization: Bearer {token}
+```
+
+#### Create Permission
+
+```
+POST /api/v1/permissions
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "delete comment",
+  "feature": "Comments"
+}
+```
+
+#### Update Permission
+
+```
+PUT /api/v1/permissions/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "remove comment",
+  "feature": "Comments"
+}
+```
+
+#### Delete Permission
+
+```
+DELETE /api/v1/permissions/{id}
+Authorization: Bearer {token}
+```
+
+### Response Format
+
+All API responses follow a consistent format:
+
+**Success Response:**
+
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": { ... }
+}
+```
+
+**Error Response:**
+
+```json
+{
+    "success": false,
+    "message": "Error message",
+    "data": null
+}
+```
+
+### Error Codes
+
+- `200` - OK
+- `201` - Created
+- `400` - Bad Request (validation errors)
+- `401` - Unauthorized
+- `403` - Forbidden (insufficient permissions)
+- `404` - Not Found
+- `422` - Unprocessable Entity (validation failed)
+- `500` - Internal Server Error
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
