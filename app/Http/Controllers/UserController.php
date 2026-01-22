@@ -30,8 +30,8 @@ class UserController extends Controller
      */
     public function create()
     {
-         $roles = \Spatie\Permission\Models\Role::pluck('name', 'id');
-         $permissions = \Spatie\Permission\Models\Permission::all();
+         $roles = \App\Models\Role::pluck('name', 'id');
+         $permissions = \App\Models\Permission::all();
          return view('users.create', compact('roles', 'permissions'));
     }
 
@@ -77,8 +77,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = \Spatie\Permission\Models\Role::pluck('name', 'id');
-        $permissions = \Spatie\Permission\Models\Permission::all();
+        $roles = \App\Models\Role::pluck('name', 'id');
+        $permissions = \App\Models\Permission::all();
         return view('users.edit', compact('user', 'roles', 'permissions'));
     }
 
