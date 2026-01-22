@@ -21,6 +21,85 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Features
+
+This application comes with the following built-in features:
+
+### Authentication & Authorization
+
+- User registration with email verification
+- Login/Logout functionality
+- Password reset & recovery
+- Email verification system
+- Password confirmation
+- Session management
+
+### Role & Permission Management
+
+- Role-based access control (RBAC) using Spatie Laravel Permission
+- Fine-grained permission system
+- 3 predefined roles: **Admin**, **Editor**, **User**
+- Dynamic permission assignment to roles
+
+### User Management (Admin Only)
+
+- Create, Read, Update, Delete users
+- Assign roles to users
+- User profile management
+- User deletion
+
+### Permission Management (Admin Only)
+
+- Create, Read, Update, Delete permissions
+- Assign permissions to roles
+- Feature-based permission organization
+
+### Role Management (Admin Only)
+
+- Create, Read, Update, Delete roles
+- Assign permissions to roles
+- Manage role hierarchy
+
+### Profile Management
+
+- View and edit user profile
+- Update password
+- Delete account
+
+### Dashboard
+
+- Protected dashboard view
+- Role-based access control
+- Accessible to authenticated users only
+
+### Navigation System
+
+- Dynamic menu based on user roles and permissions
+- Active route tracking
+- Dropdown menu organization
+- Icon support (Tabler icons)
+
+### Frontend Technologies
+
+- Tailwind CSS for styling
+- Alpine.js for interactivity
+- Vite for build and bundling
+- Blade templating engine
+
+### Testing Infrastructure
+
+- Pest PHP (v4) for testing
+- PHPUnit (v12) support
+- Feature and Unit test structure
+
+### Database & ORM
+
+- Eloquent ORM
+- Database migrations
+- Database seeders
+- UUID support for all models
+- Role and Permission table management
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
