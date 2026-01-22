@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(NavigationService $navService): void
     {
-        View::composer('layouts.navigation', function ($view) use ($navService) {
+        View::composer(['layouts.navigation', 'layouts.modernize'], function ($view) use ($navService) {
             $view->with('navItems', $navService->getMenuItems());
         });
     }

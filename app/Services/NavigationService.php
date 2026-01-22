@@ -15,28 +15,32 @@ class NavigationService
                 'name' => __('Dashboard'),
                 'route' => 'dashboard',
                 'active' => request()->routeIs('dashboard'),
-                'roles' => '*' // Semua orang bisa lihat
+                'roles' => '*', // Semua orang bisa lihat
+                'icon' => 'ti-layout-dashboard'
             ],
             [
                 'name' => __('Users'),
                 'route' => 'users.index',
                 'active' => request()->routeIs('users.*'),
                 'roles' => ['admin'],
-                'dropdown' => 'Settings'
+                'dropdown' => 'Settings',
+                'icon' => 'ti-user'
             ],
             [
                 'name' => __('Roles'),
                 'route' => 'roles.index',
                 'active' => request()->routeIs('roles.*'),
                 'roles' => ['admin'],
-                'dropdown' => 'Settings'
+                'dropdown' => 'Settings',
+                'icon' => 'ti-lock'
             ],
             [
                 'name' => __('Permissions'),
                 'route' => 'permissions.index',
                 'active' => request()->routeIs('permissions.*'),
                 'roles' => ['admin'],
-                'dropdown' => 'Settings'
+                'dropdown' => 'Settings',
+                'icon' => 'ti-key'
             ],
         ];
 

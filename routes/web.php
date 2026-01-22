@@ -22,3 +22,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+Route::view('/modern-test', 'modern-test');
