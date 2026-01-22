@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('users', \App\Http\Controllers\UserController::class)->middleware('role:admin');
     Route::resource('permissions', \App\Http\Controllers\PermissionController::class)->middleware('role:admin');
+    Route::resource('roles', \App\Http\Controllers\RoleController::class)->middleware('role:admin');
 });
 
 require __DIR__.'/auth.php';

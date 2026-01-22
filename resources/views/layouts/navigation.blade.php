@@ -35,6 +35,9 @@
                                     <x-dropdown-link :href="route('users.index')">
                                         {{ __('Users') }}
                                     </x-dropdown-link>
+                                    <x-dropdown-link :href="route('roles.index')">
+                                        {{ __('Roles') }}
+                                    </x-dropdown-link>
                                     <x-dropdown-link :href="route('permissions.index')">
                                         {{ __('Permissions') }}
                                     </x-dropdown-link>
@@ -105,6 +108,9 @@
                     </div>
                     <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Users') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.*')">
+                        {{ __('Roles') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.*')">
                         {{ __('Permissions') }}
