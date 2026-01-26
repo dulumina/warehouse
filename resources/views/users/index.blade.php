@@ -1,32 +1,36 @@
 <x-modernize-layout>
 
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 {{ __('Users') }}
             </h2>
-            <a href="{{ route('users.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            <a href="{{ route('users.create') }}" class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
                 Create User
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+    <div class="py-6">
+        <div class="">
+
+            @if (session('success'))
+                <div class="relative px-4 py-3 mb-4 text-green-700 bg-green-100 border border-green-400 rounded"
+                    role="alert">
                     <span class="block sm:inline">{{ session('success') }}</span>
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    
+
                     <div class="mb-4">
                         <form action="{{ route('users.index') }}" method="GET" class="flex gap-2">
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-64">
-                            <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">Search</button>
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Search users..."
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64">
+                            <button type="submit"
+                                class="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700">Search</button>
                         </form>
                     </div>
 
@@ -34,11 +38,21 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Name</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Email</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Roles</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Created At</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -51,27 +65,33 @@
                                             <div class="text-sm text-gray-500">{{ $user->email }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @foreach($user->roles as $role)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            @foreach ($user->roles as $role)
+                                                <span
+                                                    class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">
                                                     {{ $role->name }}
                                                 </span>
                                             @endforeach
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">{{ $user->created_at->format('M d, Y') }}</div>
+                                            <div class="text-sm text-gray-500">{{ $user->created_at->format('M d, Y') }}
+                                            </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                            <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                        <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+                                            <a href="{{ route('users.edit', $user) }}"
+                                                class="mr-3 text-indigo-600 hover:text-indigo-900">Edit</a>
+                                            <form action="{{ route('users.destroy', $user) }}" method="POST"
+                                                class="inline-block" onsubmit="return confirm('Are you sure?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                                <button type="submit"
+                                                    class="text-red-600 hover:text-red-900">Delete</button>
                                             </form>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                                        <td colspan="5"
+                                            class="px-6 py-4 text-center text-gray-500 whitespace-nowrap">
                                             No users found.
                                         </td>
                                     </tr>
