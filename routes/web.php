@@ -23,9 +23,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('units', \App\Http\Controllers\UnitController::class);
 
     // Admin Routes
-    Route::resource('users', \App\Http\Controllers\UserController::class)->middleware('role:admin');
-    Route::resource('permissions', \App\Http\Controllers\PermissionController::class)->middleware('role:admin');
-    Route::resource('roles', \App\Http\Controllers\RoleController::class)->middleware('role:admin');
+    Route::resource('users', \App\Http\Controllers\UserController::class)->middleware('permission:manage access control');
+    Route::resource('permissions', \App\Http\Controllers\PermissionController::class)->middleware('permission:manage access control');
+    Route::resource('roles', \App\Http\Controllers\RoleController::class)->middleware('permission:manage access control');
 
     // Warehouse Management Routes
     Route::group(['middleware' => 'permission:view warehouses'], function () {

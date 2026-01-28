@@ -21,6 +21,9 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             // Dashboard
             ['name' => 'view dashboard', 'feature' => 'Dashboard'],
+            
+            // Access Control
+            ['name' => 'manage access control', 'feature' => 'Access Control'],
 
             // Warehouse Management
             ['name' => 'view warehouses', 'feature' => 'Warehouse Management'],
