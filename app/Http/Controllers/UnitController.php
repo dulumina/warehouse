@@ -21,73 +21,83 @@ class UnitController extends Controller
      */
     public function datatables(Request $request)
     {
-        $columns = [
-            0 => 'code',
-            1 => 'name',
-            2 => 'symbol',
-            3 => 'description',
-        ];
+        $draw = (int) $request->get('draw', 0);
+        $start = max(0, (int) $request->get('start', 0));
+        $length = (int) $request->get('length', 10);
+
+        if ($length < 1) {
+            $length = PHP_INT_MAX;
+        }
+
+        $search = $request->get('search')['value'] ?? '';
+        $order = $request->get('order');
 
         $query = Unit::query();
 
-        // Search
-        if (!empty($request->search['value'])) {
-            $search = $request->search['value'];
+        if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
-                ->orWhere('name', 'like', "%{$search}%")
-                ->orWhere('symbol', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('symbol', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        $recordsTotal = Unit::count();
-        $recordsFiltered = $query->count();
+        $totalRecords = Unit::count();
 
-        // Order
-        if ($request->has('order')) {
-            $orderColumn = $columns[$request->order[0]['column']];
-            $orderDir = $request->order[0]['dir'];
-            $query->orderBy($orderColumn, $orderDir);
+        if ($order && is_array($order) && count($order) > 0) {
+            $columnIndex = $order[0]['column'] ?? 0;
+            $columns = $request->get('columns') ?? [];
+
+            if (isset($columns[$columnIndex]['data'])) {
+                $columnName = $columns[$columnIndex]['data'];
+                $columnDir = strtoupper($order[0]['dir'] ?? 'ASC');
+
+                if (in_array($columnName, ['code', 'name', 'symbol', 'description'])) {
+                    $query->orderBy($columnName, $columnDir);
+                } else {
+                    $query->orderBy('code', 'asc');
+                }
+            } else {
+                $query->orderBy('code', 'asc');
+            }
         } else {
             $query->orderBy('code', 'asc');
         }
 
-        // Pagination (🔥 FIX MARIA DB)
-        $start  = intval($request->start ?? 0);
-        $length = intval($request->length ?? 10);
+        $filteredRecords = $query->count();
 
-        if ($length > 0) {
-            $query->limit($length)->offset($start);
+        $query->limit($length);
+        if ($start > 0) {
+            $query->offset($start);
         }
-
         $units = $query->get();
 
-        $data = [];
-        foreach ($units as $unit) {
-            $data[] = [
+        $data = $units->map(function ($unit) {
+            $editUrl = route('units.edit', $unit);
+            $deleteUrl = route('units.destroy', $unit);
+
+            $actions = "<div class='flex justify-center gap-2'>" .
+                "<a href='{$editUrl}' class='btn btn-sm btn-warning' title='Edit'><i class='ti ti-edit'></i></a>" .
+                "<form action='{$deleteUrl}' method='POST' class='inline' onsubmit='return confirm(\"Delete this unit?\")'>" .
+                "<input type='hidden' name='_token' value='" . csrf_token() . "'>" .
+                "<input type='hidden' name='_method' value='DELETE'>" .
+                "<button type='submit' class='btn btn-sm btn-error' title='Delete'><i class='ti ti-trash'></i></button>" .
+                "</form></div>";
+
+            return [
                 'code' => $unit->code,
                 'name' => $unit->name,
                 'symbol' => $unit->symbol,
                 'description' => $unit->description,
-                'actions' => '
-                    <div class="flex justify-end gap-2">
-                        <a href="'.route('units.edit', $unit->id).'" class="btn btn-sm btn-warning">
-                            <i class="ti ti-edit"></i>
-                        </a>
-                        <button onclick="deleteUnit(\''.route('units.destroy', $unit->id).'\')"
-                            class="btn btn-sm btn-error">
-                            <i class="ti ti-trash"></i>
-                        </button>
-                    </div>
-                ',
+                'actions' => $actions,
             ];
-        }
+        });
 
         return response()->json([
-            'draw' => intval($request->draw),
-            'recordsTotal' => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered,
+            'draw' => $draw,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
             'data' => $data,
         ]);
     }
@@ -152,13 +162,9 @@ class UnitController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Unit $unit)
     {
-        Unit::findOrFail($id)->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Unit berhasil dihapus'
-        ]);
+        $unit->delete();
+        return redirect()->route('units.index')->with('success', 'Unit deleted successfully');
     }
 }

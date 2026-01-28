@@ -55,4 +55,16 @@ class StockMovement extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    // Additional relationships for controller compatibility
+    public function inventory(): BelongsTo
+    {
+        return $this->belongsTo(Inventory::class, 'product_id', 'product_id')
+            ->where('warehouse_id', $this->warehouse_id);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->createdBy();
+    }
 }

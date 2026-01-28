@@ -61,6 +61,12 @@ class StockOut extends Model
         return $this->hasMany(StockOutItem::class);
     }
 
+    // Alias for controller compatibility
+    public function user(): BelongsTo
+    {
+        return $this->issuedBy();
+    }
+
     public function approve(User $user)
     {
         $this->update([

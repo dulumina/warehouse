@@ -53,6 +53,12 @@ class StockAdjustment extends Model
         return $this->hasMany(StockAdjustmentItem::class);
     }
 
+    // Alias for controller compatibility
+    public function user(): BelongsTo
+    {
+        return $this->adjustedBy();
+    }
+
     public function approve(User $user)
     {
         $this->update([

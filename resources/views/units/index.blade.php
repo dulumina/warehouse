@@ -77,6 +77,55 @@
                 font-size: 0.875rem;
                 color: #374151;
             }
+
+            .dt-loading {
+                text-align: center;
+                padding: 2rem;
+                color: #6b7280;
+            }
+
+            .page-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 2.5rem;
+                height: 2.5rem;
+                padding: 0.5rem;
+                border: 1px solid #d1d5db;
+                border-radius: 0.375rem;
+                background-color: #ffffff;
+                color: #374151;
+                font-size: 0.875rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .page-link:hover:not(.disabled) {
+                background-color: #f3f4f6;
+                border-color: #9ca3af;
+            }
+
+            .page-item.active .page-link {
+                background-color: #5d87ff;
+                border-color: #5d87ff;
+                color: white;
+            }
+
+            .page-link.active {
+                background-color: #5d87ff;
+                border-color: #5d87ff;
+                color: white;
+            }
+
+            .page-item.disabled .page-link {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            .page-link.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
         </style>
 
         <script>
@@ -122,9 +171,12 @@
                     bInfo: false,
                     bPaginate: false,
                     bFilter: false,
-                    drawCallback: function() {
+                    drawCallback: function(settings) {
                         updatePagination();
                         updateTableInfo();
+                    },
+                    createdRow: function(row, data, index) {
+                        $(row).addClass('border-b border-gray-200 hover:bg-gray-50 transition-colors');
                     }
                 });
 
@@ -138,51 +190,102 @@
                     dataTable.page.len($(this).val()).draw();
                 });
 
+                // Update pagination
                 function updatePagination() {
                     let pageInfo = dataTable.page.info();
                     let pagination = $('#pagination');
                     pagination.empty();
 
+                    // Previous button
                     let prevBtn = $('<button>')
                         .addClass('page-link')
+                        .attr('data-page', pageInfo.page - 1)
                         .html('<i class="ti ti-chevron-left"></i>')
-                        .on('click', function() {
+                        .on('click', function(e) {
+                            e.preventDefault();
                             if (pageInfo.page > 0) {
                                 dataTable.page(pageInfo.page - 1).draw(false);
                             }
                         });
 
-                    if (pageInfo.page === 0) prevBtn.addClass('disabled');
+                    if (pageInfo.page === 0) {
+                        prevBtn.addClass('disabled');
+                    }
                     pagination.append(prevBtn);
 
-                    for (let i = 0; i < pageInfo.pages; i++) {
+                    // Page buttons
+                    let startPage = Math.max(0, pageInfo.page - 2);
+                    let endPage = Math.min(pageInfo.pages, pageInfo.page + 3);
+
+                    if (startPage > 0) {
+                        let firstBtn = $('<button>')
+                            .addClass('page-link')
+                            .text('1')
+                            .on('click', function(e) {
+                                e.preventDefault();
+                                dataTable.page(0).draw(false);
+                            });
+                        pagination.append(firstBtn);
+
+                        if (startPage > 1) {
+                            pagination.append($('<span>').addClass('px-2 text-gray-400').text('...'));
+                        }
+                    }
+
+                    for (let i = startPage; i < endPage; i++) {
                         let btn = $('<button>')
                             .addClass('page-link')
                             .text(i + 1)
-                            .on('click', function() {
+                            .on('click', function(e) {
+                                e.preventDefault();
                                 dataTable.page(i).draw(false);
                             });
 
-                        if (i === pageInfo.page) btn.addClass('active');
+                        if (i === pageInfo.page) {
+                            btn.addClass('active');
+                        }
                         pagination.append(btn);
                     }
 
+                    if (endPage < pageInfo.pages) {
+                        if (endPage < pageInfo.pages - 1) {
+                            pagination.append($('<span>').addClass('px-2 text-gray-400').text('...'));
+                        }
+
+                        let lastBtn = $('<button>')
+                            .addClass('page-link')
+                            .text(pageInfo.pages)
+                            .on('click', function(e) {
+                                e.preventDefault();
+                                dataTable.page(pageInfo.pages - 1).draw(false);
+                            });
+                        pagination.append(lastBtn);
+                    }
+
+                    // Next button
                     let nextBtn = $('<button>')
                         .addClass('page-link')
+                        .attr('data-page', pageInfo.page + 1)
                         .html('<i class="ti ti-chevron-right"></i>')
-                        .on('click', function() {
+                        .on('click', function(e) {
+                            e.preventDefault();
                             if (pageInfo.page + 1 < pageInfo.pages) {
                                 dataTable.page(pageInfo.page + 1).draw(false);
                             }
                         });
 
-                    if (pageInfo.page + 1 >= pageInfo.pages) nextBtn.addClass('disabled');
+                    if (pageInfo.page + 1 >= pageInfo.pages) {
+                        nextBtn.addClass('disabled');
+                    }
                     pagination.append(nextBtn);
                 }
 
                 function updateTableInfo() {
-                    let info = dataTable.page.info();
-                    $('#tableInfo').text(`${info.start + 1} to ${info.end} of ${info.recordsFiltered}`);
+                    let pageInfo = dataTable.page.info();
+                    let start = pageInfo.start + 1;
+                    let end = pageInfo.end;
+                    let total = pageInfo.recordsFiltered;
+                    $('#tableInfo').text(`${start} to ${end} of ${total}`);
                 }
             });
         </script>

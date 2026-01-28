@@ -66,6 +66,12 @@ class StockIn extends Model
         return $this->hasMany(StockInItem::class);
     }
 
+    // Alias for controller compatibility
+    public function user(): BelongsTo
+    {
+        return $this->receivedBy();
+    }
+
     public function approve(User $user)
     {
         $this->update([

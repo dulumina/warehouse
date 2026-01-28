@@ -49,6 +49,17 @@ class StockTransfer extends Model
         return $this->belongsTo(Warehouse::class, 'to_warehouse_id');
     }
 
+    // Aliases for controller compatibility
+    public function sourceWarehouse(): BelongsTo
+    {
+        return $this->fromWarehouse();
+    }
+
+    public function destinationWarehouse(): BelongsTo
+    {
+        return $this->toWarehouse();
+    }
+
     public function sentBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by');
@@ -62,6 +73,12 @@ class StockTransfer extends Model
     public function items(): HasMany
     {
         return $this->hasMany(StockTransferItem::class);
+    }
+
+    // Alias for controller compatibility
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sent_by');
     }
 
     public function send(User $user)
