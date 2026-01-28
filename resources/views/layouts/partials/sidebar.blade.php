@@ -33,57 +33,101 @@
                     </a>
                 </li>
 
-                <!-- Dynamic & Settings Section -->
+                <!-- Dynamic Menu Items -->
                 @php
-                    $settings = $navItems->where('dropdown', 'Settings');
-                    $others = $navItems->where('dropdown', '!=', 'Settings')->where('route', '!=', 'dashboard');
+                    $appItems = $navItems
+                        ->filter(function ($item) {
+                            return (isset($item['route']) && $item['route'] !== 'dashboard') || isset($item['submenu']);
+                        })
+                        ->filter(function ($item) {
+                            return !isset($item['roles']) || !in_array('super admin', (array) $item['roles']);
+                        });
+
+                    $settingsItems = $navItems->filter(function ($item) {
+                        return isset($item['roles']) && in_array('super admin', (array) $item['roles']);
+                    });
                 @endphp
 
-                @if ($others->count() > 0)
+                @if ($appItems->count() > 0)
                     <li class="px-4 pt-6 pb-2 text-xs font-bold text-gray-400 uppercase">
                         <span>APPS</span>
                     </li>
-                    @foreach ($others as $item)
-                        <li class="sidebar-item">
-                            <a class="sidebar-link gap-3 py-3 px-4 rounded-lg w-full flex items-center font-medium {{ $item['active'] ? 'active' : '' }}"
-                                href="{{ route($item['route']) }}">
-                                <i class="ti {{ $item['icon'] ?? 'ti-circle' }} text-xl"></i>
-                                <span>{{ $item['name'] }}</span>
-                            </a>
-                        </li>
+
+                    @foreach ($appItems as $item)
+                        @if (isset($item['submenu']) && count($item['submenu']) > 0)
+                            <!-- Submenu Item -->
+                            <li class="sidebar-item" x-data="{ open: {{ $item['active'] ? 'true' : 'false' }} }">
+                                <a href="javascript:void(0)" @click="open = !open"
+                                    class="flex items-center justify-between w-full gap-3 px-4 py-3 font-medium rounded-lg sidebar-link {{ $item['active'] ? 'active' : 'hover:bg-gray-100' }}">
+                                    <span class="flex items-center gap-3">
+                                        <i class="text-xl ti {{ $item['icon'] ?? 'ti-circle' }}"></i>
+                                        <span>{{ $item['name'] }}</span>
+                                    </span>
+                                    <i class="text-lg transition-transform duration-200 ti ti-chevron-down"
+                                        :class="{ 'rotate-180': open }"></i>
+                                </a>
+
+                                <ul x-show="open" x-collapse class="pl-0 mt-1 space-y-1">
+                                    @foreach ($item['submenu'] as $subitem)
+                                        <li class="sidebar-item">
+                                            <a href="{{ route($subitem['route']) }}"
+                                                class="sidebar-link gap-2 py-2.5 px-4 pl-12 rounded-lg w-full flex items-center font-medium {{ $subitem['active'] ? 'text-blue-600 bg-transparent' : 'hover:text-gray-700' }}">
+                                                <i
+                                                    class="ti {{ $subitem['active'] ? 'ti-circle-filled' : 'ti-circle' }} text-[10px]"></i>
+                                                <span
+                                                    class="{{ $subitem['active'] ? 'font-semibold' : '' }}">{{ $subitem['name'] }}</span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @elseif (isset($item['route']))
+                            <!-- Single Route Item -->
+                            <li class="sidebar-item">
+                                <a class="sidebar-link gap-3 py-3 px-4 rounded-lg w-full flex items-center font-medium {{ $item['active'] ? 'active' : 'hover:bg-gray-100' }}"
+                                    href="{{ route($item['route']) }}">
+                                    <i class="ti {{ $item['icon'] ?? 'ti-circle' }} text-xl"></i>
+                                    <span>{{ $item['name'] }}</span>
+                                </a>
+                            </li>
+                        @endif
                     @endforeach
                 @endif
 
-                @if ($settings->count() > 0)
+                @if ($settingsItems->count() > 0)
                     <li class="px-4 pt-6 pb-2 text-xs font-bold text-gray-400 uppercase">
                         <span>SETTINGS</span>
                     </li>
 
-                    <li class="sidebar-item" x-data="{ open: {{ request()->is('settings*') || request()->is('users*') || request()->is('roles*') || request()->is('permissions*') ? 'true' : 'false' }} }">
-                        <a href="javascript:void(0)" @click="open = !open"
-                            class="flex items-center justify-between w-full gap-3 px-4 py-3 font-medium rounded-lg sidebar-link hover:bg-transparent">
-                            <span class="flex items-center gap-3">
-                                <i class="text-xl ti ti-settings"></i>
-                                <span class="hide-menu">Management</span>
-                            </span>
-                            <i class="text-lg transition-transform duration-200 ti ti-chevron-down"
-                                :class="{ 'rotate-180': open }"></i>
-                        </a>
+                    @foreach ($settingsItems as $item)
+                        @if (isset($item['submenu']) && count($item['submenu']) > 0)
+                            <li class="sidebar-item" x-data="{ open: {{ $item['active'] ? 'true' : 'false' }} }">
+                                <a href="javascript:void(0)" @click="open = !open"
+                                    class="flex items-center justify-between w-full gap-3 px-4 py-3 font-medium rounded-lg sidebar-link hover:bg-transparent">
+                                    <span class="flex items-center gap-3">
+                                        <i class="text-xl ti {{ $item['icon'] ?? 'ti-settings' }}"></i>
+                                        <span>{{ $item['name'] }}</span>
+                                    </span>
+                                    <i class="text-lg transition-transform duration-200 ti ti-chevron-down"
+                                        :class="{ 'rotate-180': open }"></i>
+                                </a>
 
-                        <ul x-show="open" x-collapse class="pl-0 mt-1 space-y-1">
-                            @foreach ($settings as $item)
-                                <li class="sidebar-item">
-                                    <a href="{{ route($item['route']) }}"
-                                        class="sidebar-link gap-2 py-2.5 px-4 pl-12 rounded-lg w-full flex items-center font-medium {{ $item['active'] ? 'text-blue-600 bg-transparent' : '' }}">
-                                        <i
-                                            class="ti {{ $item['active'] ? 'ti-circle-filled' : 'ti-circle' }} text-[10px]"></i>
-                                        <span
-                                            class="{{ $item['active'] ? 'font-semibold' : '' }}">{{ $item['name'] }}</span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </li>
+                                <ul x-show="open" x-collapse class="pl-0 mt-1 space-y-1">
+                                    @foreach ($item['submenu'] as $subitem)
+                                        <li class="sidebar-item">
+                                            <a href="{{ route($subitem['route']) }}"
+                                                class="sidebar-link gap-2 py-2.5 px-4 pl-12 rounded-lg w-full flex items-center font-medium {{ $subitem['active'] ? 'text-blue-600 bg-transparent' : '' }}">
+                                                <i
+                                                    class="ti {{ $subitem['active'] ? 'ti-circle-filled' : 'ti-circle' }} text-[10px]"></i>
+                                                <span
+                                                    class="{{ $subitem['active'] ? 'font-semibold' : '' }}">{{ $subitem['name'] }}</span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endif
+                    @endforeach
                 @endif
 
             </ul>

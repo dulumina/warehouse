@@ -18,12 +18,13 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'admin',
+            'name' => 'Super Admin',
             'email' => 'admin@localhost',
             'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
         $this->call(RolePermissionSeeder::class);
-
+        $this->call(WarehouseSeeder::class);
     }
 }
