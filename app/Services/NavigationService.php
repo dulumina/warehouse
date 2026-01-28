@@ -171,7 +171,36 @@ class NavigationService
                     ],
                 ]
             ],
-
+            // TAMBAHKAN INI DULU KE NavigationService:
+            [
+                'name' => __('Master Data'),
+                'icon' => 'ti-database-import',
+                'active' => request()->routeIs('categories.*', 'suppliers.*', 'units.*'),
+                'permission' => 'manage categories',
+                'submenu' => [
+                    [
+                        'name' => __('Categories'),
+                        'route' => 'categories.index',
+                        'active' => request()->routeIs('categories.*'),
+                        'permission' => 'manage categories',
+                        'icon' => 'ti-category'
+                    ],
+                    [
+                        'name' => __('Suppliers'),
+                        'route' => 'suppliers.index',
+                        'active' => request()->routeIs('suppliers.*'),
+                        'permission' => 'manage suppliers',
+                        'icon' => 'ti-truck'
+                    ],
+                    [
+                        'name' => __('Units'),
+                        'route' => 'units.index',
+                        'active' => request()->routeIs('units.*'),
+                        'permission' => 'manage categories',
+                        'icon' => 'ti-ruler'
+                    ]
+                ]
+            ],
             // Settings Divider
             [
                 'name' => __('Settings'),

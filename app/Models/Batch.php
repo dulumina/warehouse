@@ -52,4 +52,9 @@ class Batch extends Model
     {
         return $this->expiry_date <= now()->addDays($days)->date();
     }
+    public function inventory(): HasMany
+    {
+        return $this->hasMany(Inventory::class, 'batch_number', 'batch_number');
+    }
+
 }

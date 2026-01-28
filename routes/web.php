@@ -16,6 +16,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // route units.index
+    Route::get('units/datatables', [\App\Http\Controllers\UnitController::class, 'datatables'])
+        ->name('units.datatables');
+
+    Route::resource('units', \App\Http\Controllers\UnitController::class);
+
     // Admin Routes
     Route::resource('users', \App\Http\Controllers\UserController::class)->middleware('role:admin');
     Route::resource('permissions', \App\Http\Controllers\PermissionController::class)->middleware('role:admin');
