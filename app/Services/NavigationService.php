@@ -147,6 +147,7 @@ class NavigationService
             // Reports
             [
                 'name' => __('Reports'),
+                'route' => 'reports.index',
                 'icon' => 'ti-chart-bar',
                 'active' => request()->routeIs('reports.*'),
                 'permission' => 'view stock reports',

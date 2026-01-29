@@ -79,16 +79,16 @@ class StockAdjustment extends Model
 
     public function canBeApproved(): bool
     {
-        return $this->status === 'DRAFT';
+        return strtoupper($this->status) === 'DRAFT';
     }
 
     public function isDraft(): bool
     {
-        return $this->status === 'DRAFT';
+        return strtoupper($this->status) === 'DRAFT';
     }
 
     public function isApproved(): bool
     {
-        return $this->status === 'APPROVED';
+        return strtoupper($this->status) === 'APPROVED';
     }
 }

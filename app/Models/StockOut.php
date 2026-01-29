@@ -87,16 +87,16 @@ class StockOut extends Model
 
     public function canBeApproved(): bool
     {
-        return $this->status === 'PENDING';
+        return strtoupper($this->status) === 'PENDING';
     }
 
     public function isPending(): bool
     {
-        return $this->status === 'PENDING';
+        return strtoupper($this->status) === 'PENDING';
     }
 
     public function isApproved(): bool
     {
-        return $this->status === 'APPROVED';
+        return strtoupper($this->status) === 'APPROVED';
     }
 }

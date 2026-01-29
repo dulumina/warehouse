@@ -101,16 +101,16 @@ class StockTransfer extends Model
 
     public function isDraft(): bool
     {
-        return $this->status === 'DRAFT';
+        return strtoupper($this->status) === 'DRAFT';
     }
 
     public function isInTransit(): bool
     {
-        return $this->status === 'IN_TRANSIT';
+        return strtoupper($this->status) === 'IN_TRANSIT';
     }
 
     public function isReceived(): bool
     {
-        return $this->status === 'RECEIVED';
+        return strtoupper($this->status) === 'RECEIVED';
     }
 }

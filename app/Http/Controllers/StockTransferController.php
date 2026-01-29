@@ -3,10 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockTransfer;
+use App\Models\StockTransferItem;
+use App\Models\Warehouse;
+use App\Models\Product;
+use App\Services\StockTransferService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockTransferController extends Controller
 {
+    public function __construct(protected StockTransferService $stockTransferService)
+    {
+    }
+
     public function index()
     {
         return view('stock-transfers.index');
@@ -19,27 +28,32 @@ class StockTransferController extends Controller
         $length = (int) $request->get('length', 10);
 
         if ($length < 1) {
-            $length = PHP_INT_MAX;
+            $length = 10;
         }
 
         $search = $request->get('search')['value'] ?? '';
         $order = $request->get('order');
 
-        $query = StockTransfer::with(['sourceWarehouse', 'destinationWarehouse', 'sentBy', 'receivedBy']);
+        $query = StockTransfer::with(['fromWarehouse', 'toWarehouse', 'sentBy', 'receivedBy']);
+
+        if ($request->has('status')) {
+            $query->where('status', strtoupper($request->status));
+        }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('document_number', 'like', "%{$search}%")
-                    ->orWhereHas('sourceWarehouse', function ($q) use ($search) {
+                    ->orWhereHas('fromWarehouse', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%");
                     })
-                    ->orWhereHas('destinationWarehouse', function ($q) use ($search) {
+                    ->orWhereHas('toWarehouse', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%");
                     });
             });
         }
 
         $totalRecords = StockTransfer::count();
+        $filteredRecords = $query->count();
 
         if ($order && is_array($order) && count($order) > 0) {
             $columnIndex = $order[0]['column'] ?? 0;
@@ -61,13 +75,7 @@ class StockTransferController extends Controller
             $query->orderBy('created_at', 'DESC');
         }
 
-        $filteredRecords = $query->count();
-
-        $query->limit($length);
-        if ($start > 0) {
-            $query->offset($start);
-        }
-        $transfers = $query->get();
+        $transfers = $query->skip($start)->take($length)->get();
 
         $data = $transfers->map(function ($transfer) {
             $viewUrl = route('stock-transfers.show', $transfer);
@@ -75,32 +83,51 @@ class StockTransferController extends Controller
             $actions = "<div class='flex justify-center gap-2'>" .
                 "<a href='{$viewUrl}' class='btn btn-sm btn-info' title='View'><i class='ti ti-eye'></i></a>";
 
-            if ($transfer->status === 'draft') {
+            if (strtoupper($transfer->status) === 'DRAFT') {
                 $deleteUrl = route('stock-transfers.destroy', $transfer);
+                $sendUrl = route('stock-transfers.send', $transfer);
+                $actions .= "<form action='{$sendUrl}' method='POST' class='inline' onsubmit='return confirm(\"Send this transfer?\")'>" .
+                    "<input type='hidden' name='_token' value='" . csrf_token() . "'>" .
+                    "<button type='submit' class='btn btn-sm btn-warning' title='Send'><i class='ti ti-send'></i></button>" .
+                    "</form>";
                 $actions .= "<form action='{$deleteUrl}' method='POST' class='inline' onsubmit='return confirm(\"Delete this transfer?\")'>" .
                     "<input type='hidden' name='_token' value='" . csrf_token() . "'>" .
                     "<input type='hidden' name='_method' value='DELETE'>" .
                     "<button type='submit' class='btn btn-sm btn-error' title='Delete'><i class='ti ti-trash'></i></button>" .
                     "</form>";
             }
+
+            if (strtoupper($transfer->status) === 'IN_TRANSIT') {
+                $receiveUrl = route('stock-transfers.receive', $transfer);
+                $actions .= "<form action='{$receiveUrl}' method='POST' class='inline' onsubmit='return confirm(\"Receive this transfer?\")'>" .
+                    "<input type='hidden' name='_token' value='" . csrf_token() . "'>" .
+                    "<button type='submit' class='btn btn-sm btn-success' title='Receive'><i class='ti ti-package-import'></i></button>" .
+                    "</form>";
+            }
             
             $actions .= "</div>";
 
-            $badgeClass = match($transfer->status) {
-                'received' => 'badge-success',
-                'in_transit' => 'badge-warning',
-                default => 'badge-ghost'
+            $status = strtoupper($transfer->status);
+            $badgeClass = match($status) {
+                'RECEIVED'   => 'badge-success',
+                'IN_TRANSIT' => 'badge-warning',
+                'DRAFT'      => 'badge-ghost',
+                'REJECTED'   => 'badge-error',
+                'CANCELLED'  => 'badge-ghost',
+                default      => 'badge-ghost'
             };
 
             return [
                 'document_number' => "<span class='font-mono text-blue-600'>{$transfer->document_number}</span>",
-                'source_warehouse' => $transfer->sourceWarehouse?->name ?? '-',
-                'destination_warehouse' => $transfer->destinationWarehouse?->name ?? '-',
-                'status' => "<span class='badge {$badgeClass} gap-2'>{$transfer->status}</span>",
-                'transaction_date' => $transfer->transaction_date?->format('Y-m-d'),
+                'source_warehouse' => $transfer->fromWarehouse?->name ?? '-',
+                'destination_warehouse' => $transfer->toWarehouse?->name ?? '-',
+                'status' => "<span class='badge {$badgeClass} gap-2'>{$status}</span>",
+                'transaction_date' => $transfer->transaction_date ? $transfer->transaction_date->format('Y-m-d') : '-',
+                'total_items' => (int) ($transfer->total_items ?? 0),
+                'total_quantity' => (float) ($transfer->total_quantity ?? 0),
                 'actions' => $actions,
             ];
-        });
+        })->values()->all();
 
         return response()->json([
             'draw' => $draw,
@@ -112,64 +139,110 @@ class StockTransferController extends Controller
 
     public function create()
     {
-        $warehouses = \App\Models\Warehouse::all();
-        $products = \App\Models\Product::all();
-        return view('stock-transfers.create', compact('warehouses', 'products'));
+        $warehouses = Warehouse::with('locations')
+            ->where('is_active', true)
+            ->get();
+
+        $products = Product::with('unit')
+            ->where('is_active', true)
+            ->get();
+
+        $locations = $warehouses->flatMap(function ($w) {
+            return $w->locations->map(function ($l) use ($w) {
+                return [
+                    'warehouse_id' => $w->id,
+                    'id'           => $l->id,
+                    'code'         => $l->code,
+                    'name'         => $l->name,
+                ];
+            });
+        })->values();
+
+        return view('stock-transfers.create', compact(
+            'warehouses',
+            'products',
+            'locations'
+        ));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'source_warehouse_id' => 'required|exists:warehouses,id',
-            'destination_warehouse_id' => 'required|exists:warehouses,id|different:source_warehouse_id',
-            'transfer_date' => 'required|date',
-            'notes' => 'nullable',
+            'from_warehouse_id' => 'required|exists:warehouses,id',
+            'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
+            'transaction_date' => 'required|date',
+            'status' => 'required|in:DRAFT,IN_TRANSIT,RECEIVED,REJECTED,CANCELLED',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.from_location_id' => 'nullable|exists:warehouse_locations,id',
+            'items.*.to_location_id' => 'nullable|exists:warehouse_locations,id',
+            'items.*.batch_number' => 'nullable|string|max:255',
+            'items.*.notes' => 'nullable|string',
         ]);
 
-        $transfer = StockTransfer::create([
-            ...$validated,
-            'user_id' => auth()->id(),
-            'status' => 'draft',
-        ]);
+        try {
+            $transfer = $this->stockTransferService->create([
+                ...$validated,
+                'sent_by' => auth()->id(),
+            ]);
 
-        return redirect()->route('stock-transfers.show', $transfer)->with('success', 'Stock Transfer created successfully');
+            foreach ($validated['items'] as $itemData) {
+                $this->stockTransferService->addItem($transfer, $itemData);
+            }
+
+            return redirect()
+                ->route('stock-transfers.show', $transfer)
+                ->with('success', 'Stock Transfer created successfully');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create transfer: ' . $e->getMessage());
+        }
     }
 
     public function show(StockTransfer $transfer)
     {
-        $transfer->load(['sourceWarehouse', 'destinationWarehouse', 'items', 'user']);
+        $transfer->load([
+            'fromWarehouse', 
+            'toWarehouse', 
+            'items.product.unit',
+            'sentBy',
+            'receivedBy'
+        ]);
         return view('stock-transfers.show', compact('transfer'));
     }
 
     public function send(StockTransfer $transfer)
     {
-        $this->authorize('update', $transfer);
-
-        if ($transfer->status === 'draft') {
-            $transfer->update(['status' => 'in_transit', 'sent_by' => auth()->id(), 'sent_at' => now()]);
+        try {
+            $this->stockTransferService->send($transfer, auth()->user());
+            return redirect()->back()->with('success', 'Stock Transfer sent successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
-
-        return redirect()->back()->with('success', 'Stock Transfer sent');
     }
 
     public function receive(StockTransfer $transfer)
     {
-        $this->authorize('update', $transfer);
-
-        if ($transfer->status === 'in_transit') {
-            $transfer->update(['status' => 'received', 'received_by' => auth()->id(), 'received_at' => now()]);
+        try {
+            // In a real app, we might allow partial receipt via a form.
+            // For the datatables shortcut, we assume full receipt.
+            $itemsReceived = $transfer->items->pluck('quantity', 'id')->toArray();
+            $this->stockTransferService->receive($transfer, $itemsReceived, auth()->user());
+            return redirect()->back()->with('success', 'Stock Transfer received successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
-
-        return redirect()->back()->with('success', 'Stock Transfer received');
     }
 
     public function destroy(StockTransfer $transfer)
     {
-        if ($transfer->status === 'draft') {
-            $transfer->delete();
-            return redirect()->route('stock-transfers.index')->with('success', 'Stock Transfer deleted');
+        if (strtoupper($transfer->status) !== 'DRAFT') {
+            return redirect()->back()->with('error', 'Cannot delete non-draft stock transfer');
         }
 
-        return redirect()->back()->with('error', 'Cannot delete in-transit or received stock transfer');
+        $transfer->delete();
+        return redirect()->route('stock-transfers.index')->with('success', 'Stock Transfer deleted successfully');
     }
 }

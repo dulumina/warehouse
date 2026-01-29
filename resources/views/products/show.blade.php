@@ -23,10 +23,10 @@
                 <div class="flex items-center gap-3 mb-2">
                     <h1 class="text-3xl font-bold text-gray-900">{{ $product->name }}</h1>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                        {{ $product->type == 'raw' ? 'bg-orange-100 text-orange-700' : '' }}
-                        {{ $product->type == 'finished' ? 'bg-green-100 text-green-700' : '' }}
-                        {{ $product->type == 'service' ? 'bg-blue-100 text-blue-700' : '' }}">
-                        {{ ucfirst($product->type) }}
+                        {{ $product->type == 'RAW_MATERIAL' ? 'bg-orange-100 text-orange-700' : '' }}
+                        {{ $product->type == 'FINISHED_GOOD' ? 'bg-green-100 text-green-700' : '' }}
+                        {{ $product->type == 'CONSUMABLE' ? 'bg-blue-100 text-blue-700' : '' }}">
+                        {{ str_replace('_', ' ', ucwords(strtolower($product->type), '_')) }}
                     </span>
                 </div>
                 <p class="text-gray-600">Product Code: <span class="font-mono font-semibold">{{ $product->code }}</span></p>
@@ -79,10 +79,10 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Product Type</p>
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                    {{ $product->type == 'raw' ? 'bg-orange-100 text-orange-700' : '' }}
-                                    {{ $product->type == 'finished' ? 'bg-green-100 text-green-700' : '' }}
-                                    {{ $product->type == 'service' ? 'bg-blue-100 text-blue-700' : '' }}">
-                                    {{ ucfirst($product->type) }}
+                                    {{ $product->type == 'RAW_MATERIAL' ? 'bg-orange-100 text-orange-700' : '' }}
+                                    {{ $product->type == 'FINISHED_GOOD' ? 'bg-green-100 text-green-700' : '' }}
+                                    {{ $product->type == 'CONSUMABLE' ? 'bg-blue-100 text-blue-700' : '' }}">
+                                    {{ str_replace('_', ' ', ucwords(strtolower($product->type), '_')) }}
                                 </span>
                             </div>
                             @if($product->weight)
@@ -108,20 +108,20 @@
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 border border-red-200">
-                                <p class="text-sm text-red-700 mb-1 font-medium">Cost Price</p>
-                                <p class="text-2xl font-bold text-red-900">Rp {{ number_format($product->cost, 2) }}</p>
+                                <p class="text-sm text-red-700 mb-1 font-medium">Standard Cost</p>
+                                <p class="text-2xl font-bold text-red-900">Rp {{ number_format($product->standard_cost, 2) }}</p>
                                 <p class="text-xs text-red-600 mt-1">Base purchase cost</p>
                             </div>
                             <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
                                 <p class="text-sm text-green-700 mb-1 font-medium">Selling Price</p>
-                                <p class="text-2xl font-bold text-green-900">Rp {{ number_format($product->price, 2) }}</p>
+                                <p class="text-2xl font-bold text-green-900">Rp {{ number_format($product->selling_price, 2) }}</p>
                                 <p class="text-xs text-green-600 mt-1">Customer price</p>
                             </div>
                         </div>
                         
                         @php
-                            $margin = $product->price - $product->cost;
-                            $marginPercent = $product->cost > 0 ? ($margin / $product->cost) * 100 : 0;
+                            $margin = $product->selling_price - $product->standard_cost;
+                            $marginPercent = $product->standard_cost > 0 ? ($margin / $product->standard_cost) * 100 : 0;
                         @endphp
                         
                         <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -221,10 +221,10 @@
                             <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                 <span class="text-sm text-gray-600">Type</span>
                                 <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium
-                                    {{ $product->type == 'raw' ? 'bg-orange-100 text-orange-700' : '' }}
-                                    {{ $product->type == 'finished' ? 'bg-green-100 text-green-700' : '' }}
-                                    {{ $product->type == 'service' ? 'bg-blue-100 text-blue-700' : '' }}">
-                                    {{ ucfirst($product->type) }}
+                                    {{ $product->type == 'RAW_MATERIAL' ? 'bg-orange-100 text-orange-700' : '' }}
+                                    {{ $product->type == 'FINISHED_GOOD' ? 'bg-green-100 text-green-700' : '' }}
+                                    {{ $product->type == 'CONSUMABLE' ? 'bg-blue-100 text-blue-700' : '' }}">
+                                    {{ str_replace('_', ' ', ucwords(strtolower($product->type), '_')) }}
                                 </span>
                             </div>
                             @if($product->weight)

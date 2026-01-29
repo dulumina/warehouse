@@ -200,9 +200,9 @@
                                                 name="type" 
                                                 class="pl-10 w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50"
                                                 required>
-                                            <option value="raw" {{ old('type', $product->type) == 'raw' ? 'selected' : '' }}>Raw Material</option>
-                                            <option value="finished" {{ old('type', $product->type) == 'finished' ? 'selected' : '' }}>Finished Product</option>
-                                            <option value="service" {{ old('type', $product->type) == 'service' ? 'selected' : '' }}>Service</option>
+                                            <option value="FINISHED_GOOD" {{ old('type', $product->type) == 'FINISHED_GOOD' ? 'selected' : '' }}>Finished Good</option>
+                                            <option value="RAW_MATERIAL" {{ old('type', $product->type) == 'RAW_MATERIAL' ? 'selected' : '' }}>Raw Material</option>
+                                            <option value="CONSUMABLE" {{ old('type', $product->type) == 'CONSUMABLE' ? 'selected' : '' }}>Consumable</option>
                                         </select>
                                     </div>
                                 </div>
@@ -229,25 +229,25 @@
                         
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <!-- Cost -->
+                                <!-- Standard Cost -->
                                 <div>
-                                    <label for="cost" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Cost <span class="text-red-500">*</span>
+                                    <label for="standard_cost" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Standard Cost <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 font-medium">Rp</span>
                                         </div>
                                         <input type="number" 
-                                            id="cost" 
-                                            name="cost" 
+                                            id="standard_cost" 
+                                            name="standard_cost" 
                                             step="0.01" 
-                                            value="{{ old('cost', $product->cost) }}" 
-                                            class="pl-12 w-full rounded-lg border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 @error('cost') border-red-500 @enderror"
+                                            value="{{ old('standard_cost', $product->standard_cost) }}" 
+                                            class="pl-12 w-full rounded-lg border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 @error('standard_cost') border-red-500 @enderror"
                                             placeholder="0.00"
                                             required>
                                     </div>
-                                    @error('cost')
+                                    @error('standard_cost')
                                         <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
                                             <i class="ti ti-alert-circle"></i>{{ $message }}
                                         </p>
@@ -255,9 +255,9 @@
                                     <p class="mt-1 text-xs text-gray-500">Base cost price</p>
                                 </div>
 
-                                <!-- Price -->
+                                <!-- Selling Price -->
                                 <div>
-                                    <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label for="selling_price" class="block text-sm font-semibold text-gray-700 mb-2">
                                         Selling Price <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
@@ -265,15 +265,15 @@
                                             <span class="text-gray-500 font-medium">Rp</span>
                                         </div>
                                         <input type="number" 
-                                            id="price" 
-                                            name="price" 
+                                            id="selling_price" 
+                                            name="selling_price" 
                                             step="0.01" 
-                                            value="{{ old('price', $product->price) }}" 
-                                            class="pl-12 w-full rounded-lg border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 @error('price') border-red-500 @enderror"
+                                            value="{{ old('selling_price', $product->selling_price) }}" 
+                                            class="pl-12 w-full rounded-lg border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 @error('selling_price') border-red-500 @enderror"
                                             placeholder="0.00"
                                             required>
                                     </div>
-                                    @error('price')
+                                    @error('selling_price')
                                         <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
                                             <i class="ti ti-alert-circle"></i>{{ $message }}
                                         </p>
@@ -561,15 +561,15 @@
         });
 
         // Price validation
-        const costInput = document.getElementById('cost');
-        const priceInput = document.getElementById('price');
+        const costInput = document.getElementById('standard_cost');
+        const priceInput = document.getElementById('selling_price');
 
         priceInput.addEventListener('blur', function() {
             const cost = parseFloat(costInput.value) || 0;
             const price = parseFloat(priceInput.value) || 0;
 
             if (price < cost) {
-                alert('Warning: Selling price is lower than cost!');
+                alert('Warning: Selling price is lower than standard cost!');
             }
         });
     </script>

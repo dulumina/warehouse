@@ -7,9 +7,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
 
     // Reports Routes
     Route::group(['middleware' => 'permission:view stock reports|view movement reports|view valuation reports', 'prefix' => 'reports', 'as' => 'reports.'], function () {
+        Route::get('/', \App\Http\Controllers\ReportController::class . '@index')->name('index');
         Route::get('stock', \App\Http\Controllers\ReportController::class . '@stock')->name('stock');
         Route::get('movements', \App\Http\Controllers\ReportController::class . '@movements')->name('movements');
         Route::get('valuation', \App\Http\Controllers\ReportController::class . '@valuation')->name('valuation');
