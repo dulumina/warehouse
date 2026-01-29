@@ -1,3 +1,48 @@
+# Agusto - Integrated Warehouse Management System
+
+Agusto adalah sistem manajemen gudang (Warehouse Management System) tingkat lanjut yang dibangun dengan Laravel. Aplikasi ini dirancang untuk memberikan kontrol penuh atas inventaris, pelacakan stok secara real-time, manajemen lokasi multi-gudang, dan alur kerja persetujuan yang terstruktur.
+
+## ✨ Fitur Utama
+
+- **Real-time Inventory Tracking**: Pembaruan stok otomatis saat transaksi disetujui, dengan perhitungan stok tersedia yang akurat (Total - Cadangan).
+- **Multi-Warehouse Support**: Kelola banyak gudang dengan struktur lokasi hirarki (Zone > Aisle > Rack > Level > Bin).
+- **Advanced Batch & Serial Tracking**: Dukungan untuk nomor batch dengan tanggal kedaluwarsa dan pelacakan nomor seri untuk barang bernilai tinggi.
+- **Transaction Management**:
+    - **Stock In**: Penerimaan barang dari supplier atau sumber lain.
+    - **Stock Out**: Pengeluaran barang untuk pengiriman atau penggunaan.
+    - **Stock Transfer**: Perpindahan barang antar gudang dengan sistem kirim-terima.
+    - **Stock Adjustment**: Penyesuaian stok berdasarkan hasil stock opname fisik.
+- **Approval Workflow**: Alur kerja transaksi yang aman (Draft > Pending > Approved/Rejected) untuk menjaga integritas data.
+- **Audit Trail & Stock Movement**: Riwayat pergerakan stok yang lengkap mencatat siapa, kapan, dan mengapa stok berubah, lengkap dengan saldo sebelum dan sesudah.
+- **Stock Alerts**: Deteksi otomatis untuk stok rendah (low stock), barang hampir kedaluwarsa (expiring), dan peringatan overstock.
+- **Role-Based Access Control (RBAC)**: Manajemen akses pengguna yang granular dengan peran seperti Super Admin, Warehouse Manager, Staff, dan Viewer.
+
+## 🛠️ Teknologi yang Digunakan
+
+- **Framework**: [Laravel 12](https://laravel.com)
+- **Database**: MySQL/PostgreSQL dengan UUID sebagai Primary Key untuk skalabilitas.
+- **Backend Logic**: Service Layer Pattern untuk memisahkan logika bisnis dari Controller.
+- **UI/UX**:
+    - **Blade Components**: Untuk modularitas tampilan.
+    - **Modernize Layout**: Antarmuka admin yang bersih dan responsif.
+    - **Tailwind CSS**: Untuk styling yang fleksibel dan modern.
+    - **Chart.js**: Untuk visualisasi data pada dashboard.
+- **DataTable**: Integrasi server-side processing untuk manajemen data besar.
+- **Authentication**: Laravel Breeze / Laravel Fortify (berdasarkan konfigurasi).
+- **Icons**: Tabler Icons.
+
+## 🚀 Persiapan Cepat
+
+1.  **Clone repository** dan masuk ke direktori proyek.
+2.  Install dependensi: `composer install` dan `npm install`.
+3.  Salin `.env.example` ke `.env` dan konfigurasikan database Anda.
+4.  Generate app key: `php artisan key:generate`.
+5.  Jalankan migrasi: `php artisan migrate`.
+6.  Seed data awal (Permissions & Roles): `php artisan db:seed --class=WarehousePermissionSeeder`.
+7.  Jalankan server: `php artisan serve` dan `npm run dev`.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -6,54 +51,3 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
